@@ -1,0 +1,268 @@
+Notes mathématiques :
+- Notation : log=ln/ln(2)
+- J'utilise massivement une technique peut-être pas enseignée en prépa pour calculer des approximations, appelée « bootstrapping »
+Par exemple, si on veut résoudre x exp(x)=y en +inf :
+On pose x=ln(y)-ln(x) ; on remarque x<=ln(y) (donc x=O(ln(y))).
+On itère ensuite :
+x=ln(y)-ln(O(ln y))=ln(y)+O(ln ln y)
+x=ln(y)-ln(ln y+O(ln ln y))=ln y - ln ln y + O(ln ln y/ln y)
+etc.
+Autre exemple : x^5+nx-1=0, x>=0, n->inf. x<=1/n => x=O(1/n)
+x=(1-x^5)/n=(1-O(1/n)^5)/n=1/n+O(1/n^6)
+x=(1-(1/n+O(1/n^6))^5)/n=1/n-1/n^5+O(1/n^8)
+C'est très utile sur machine ; on applique qu'une étape sur papier en général ; ça marche souvent ; ça converge rapidement
+NB : Il est possible que l'on ne puisse pas facilement initialiser ; on itère alors jusqu'à être capable de prouver une estimation
+- Le volume d'une boule unité est B_n et c'est (2pie/n+o(1/n))^(n/2)
+- La différence entre la somme sur Z d'une gaussienne de variance V et l'intégrale est exp(-(2pi^2+o(1))V)
+En fait Somme_k entier exp(-k²/2V)=theta_3(0,exp(-1/2V))=
+theta_3(0,exp(-1/2V))=theta_00(0,i/(2PiV))=sqrt(2PiV)theta_00(0,2iPiV)=sqrt(2PiV)theta_3(0,exp(-2Pi²V))=[définition]sqrt(2PiV)(1+2Somme_n>0 exp(-2Pi²Vn²))~=sqrt(2PiV)(1+2exp(-2Pi²V)+O(exp(-8Pi²V))) [cf Wikipedia… du simple calcul avec des formes modulaires ahahah]
+
+Nouveau Walsh utile quand proba vraiment petite (et encore…)
+J'ai vu un facteur au plus 2 entre les 2 algos en faveur du nouveau Walsh
+Si L grand, le normal peut être 5 fois plus rapide
+
+l2^lK = 2^L
+2^l ~ log(N)/(.5-p')²
+K=2^L*(.5-p')²/log² N
+H(P/N)=(L+2log .5-p')/N
+
+p=cte
+2^(m*n/log n) en mémoire
+f*log n fusions
+N=n(1-fm) => f=1/m-o(1)
+tau'=tau^(2^(f*log n))=tau^(n^f)=2^(n^flog tau) => limsup f<=1
+f=1-log log n/log n convient
+Complexité : 2^((1+o(1))n/log n)
+
+Proba p/log n
+tau'=(1-2p/log n)^(n^f)=2^(-2pn^f/log n) on pose f=1-cte/log n, cte suffisamment grand
+1/tau'²=o(2^(m*n/log n)) : ok
+N=n(1-m)
+H(P)N=m*n/log n
+=> H(P)=m/log n/(1-m)=-Plog P => P<=m/1-m/log n ; P ~= m/1-m/log n/log log n
+Proba=2^(H(P)N)(p/log n)^(PN)(1-p/log n)^(N(1-P))
+=2^(n(m/log n+(1-m)(Plog (p/log n)+(1-P)-p/ln 2/log n)))
+=2^(n(m/log n-m/log n+m log p/log n/log log n-(1-m)p/ln 2/log n))
+~=2^(-(1-m)np/ln 2/log n+mn log p/log n/log log n+O(n/log² n))
+Total : 2^(np/ln 2/log n-nm log p/log n/log log n)
+Conclusion : 2^((p/ln 2+O(1/log log n))n/log n) optimal (pour p<=ln 2), atteint en espace polynomial par l'algorithme bourrin
+Convergence ultra-lente !
+
+Conclusion : pour proba p, le temps de calcul est en 2^(min(p log n/ln 2,1)n/log n).
+
+Algorithme :
+- réduire n par fusions sur liste de taille 2^m
+- enlever m-l bits
+- tester par Walsh les secrets à petit poids, extraire une liste de candidats
+- reconstruire les m-l bits un à un, en supprimant au moins la moitié des candidats à chaque bit
+- si on aurait dû trouver le secret avant cette itération avec haute proba, retourner erreur
+- s'il n'y a plus de candidats, recommencer
+- récurrer avec cette partie de secret, si erreur, recommencer
+- retourner la concaténation des secrets
+
+Walsh modifié (plus simple) sur n bits, poids <=nP, proba secret p
+L requêtes de proba pr=(1-tau)/2 tau très petit
+Si le maximum de vraisemblance a un poids nM et vL erreurs :
+Vraisemblance=p^nM*(1-p)^(n(1-M))*pr^(vL)*(1-pr)^((1-v)L)
+=n[Mlog p+(1-M)log 1-p]+L[+vlog pr+(1-v)log 1-pr]
+=n[Mlog p+(1-M)log 1-p]+L[-vtau/ln(2)+(1-v)tau/ln(2)-1]
+=n[Mlog p+(1-M)log 1-p]+L[-tau*2/ln(2)v] (constante additive ne change rien)
+H(v)=-vlog v-(1-v)log 1-v=1-2/ln(2)(1/2-v)²+O((1/2-v)³)
+L'=L/ln(2)/2 et V=(1-v)/2
+=n[Mlog p+(1-M)log 1-p]+L'[-Vtau]
+V' tel qu'un secret de poids nM' ait la même vraisemblance :
+-V'tau=n/L'[(M'-M)log p/1-p]-Vtau
+V'=V+n/L'/tau[(M'-M)log 1-p/p]
+-lnProba correct : 2^(L(H((1-V')/2)-1))=2^(-L'V'²)
+2^(nH(M')-L'V'²)
+
+Heuristiquement V-tau=petit=V'-tau :
+2^(nH(M')-L'tau²+2n[(M-M')log 1-p/p])
+Dérive par rapport à M' :
+G(x)=H'(x)=-log(x(1-x))-2
+log(M'(1-M'))+2=-2log 1-p/p
+M'(1-M')=(p/(1-p))^2/4
+Petite racine :
+M'=(1-sqrt(1-(p/(1-p))^2))/2~p²/4 (en p=o(1))
+Proba correcte : exp(-2^(nH(p²/4)-L'tau²+2n[(M-p²/4)log (1-p)/p]))
+Pn=L'tau²/2/log (1-p)/p pour p suffisamment petit
+Soit L'=2Pnlog (1-p)/p/tau²
+Non heuristiquement :
+2^(nH(M')-L'tau²+2n[(M-M')log 1-p/p]-n²/L'/tau²[(M'-M)log 1-p/p])
+… crade même en dérivant !
+
+Ancienne version :
+-lnProba correct : 2^(L(H((1-V)/2)-1))=2^(-L'V²)
+nH(P)=L'tau²
+L'=Pnlog 1/P/tau²
+Soit (log 1/P)/(2log 1/p) fois plus
+Avec p=cte/log n : P=p/log log n : un facteur 1+o(1) gagné :)
+
+Probabilité d'être dans la fraction f=o(1) des meilleurs, ancienne version :
+Avec proba p, on est meilleur ; N tirages :
+2^(N(H(f)+flog p+(1-f)log 1-p))
+Max en f=p
+N=2^(nH(P)) K=L'tau²
+p=1/2^K
+2^(N(H(f)-fK-(1-f)/2^K/ln 2))
+Donc on remplace nH(P) par au plus log l.
+L'=2(log 1/tau)/tau²
+
+Nouveau Walsh : pour chaque secret de poids <=P1 sur N-L bits, calculer les scores des secrets de poids <=P2 sur L bits
+NB : massivement parallèle
+
+Algorithme :
+- choisir m une taille de liste, w le nombre de fusions
+- déduire le n restant
+- pour chaque n' croissant (0.1<L'tau²<100), déduire p du nb d'opérations : calculer la proba d'un Walsh normal sur n bits de poids p, le travail d'un Walsh modifié
+- calculer la proba/le travail du Walsh modifié pour les params optimaux
+- recommencer en modifiant par les facteurs trouvés précédemment
+
+N*log²(N)+1000log²(N)
+
+
+LWE : On a A, As+e=r : B=
+(qI A)
+(0  I)
+B(*/s)=(r/0)+(-e/s)
+q^(m/(m+n))alpha^((m+n)/2)=1
+
+B=
+(qI A^t)
+(0  I  )
+|A^tx|²+|x|² min
+(A^tx)^ts-x^tr=x^tAs-x^tr=x^te
+=> |x^tr|²=|(A^tx)^ts-x^te|² : (|A^tx|²+|x|²)sigma²
+q^(n/(n+m))alpha^((m+n)/2)=1
+n log q+(m+n)²/2 log alpha=0
+m=sqrt(-2n log q/log alpha)-n
+q^(n/(n+m))alpha^(-(m+n)/2)=alpha^(-(m+n))=2^(sqrt(-2n log q*log alpha))
+
+BKW-LWE :
+Walsh : on peut faire pareil en retenant pour chaque secret la distribution
+NB : Si on connaît la distribution pour s, on la connaît sur sFq… Donc on calcule que sur l'espace projectif
+Profondeur i,q^l requêtes : ~= q^i*q^l => total en lq^l opérations
+
+Secrets : on se concentre sur les plus probables soit produit_i p(a_i)>cte (<=> Somme_i log p(a_i)>cte).
+[Et pas sur les |a_i|<cte…………………………]
+Comment leur nombre évolue en fonction de la dimension, l'écart type ? La proba d'être dedans ?
+Et quand on projète ?
+Modéliser par une vraie gaussienne, calculer le volume et espérer que ça approxime bien ?
+
+Si l'écart type tend vers 0, la proba que l'erreur soit nulle est 1-o(1) donc complexité exp(o(n)).
+[Pour BKW normal c'est 1/n^omega(1) (section 4)]
+Proba erreur nulle : 1/(sigma*sqrt(2*Pi)) sigma=cte pas trop petite (>1/2)
+
+Rencontre au milieu, secret binaire :
+2^(n/2) vecteurs => n/2/log q coords => proba réussite=(1/sigma/sqrt(2*Pi))^(n/2/log q)
+LogComplexité : n/2(1+log(sigma*sqrt(2*Pi))/log q)=0,875n [Regev]
++Représentation 2^n/2->2^0,291n: 2^0,666 n (:o !)
+
+However, neither the construction of the samples m nor the second stage of the algorithm dominate the
+overall runnning time. => paramètres non optimisés… Sans commentaire !
+On peut changer le secret que sur les coordonnées qui nous intéressent (donc surcoût en ~=log n au lieu de n).
+
+Considérer uniquement les bits de poids fort (alias "lazy modulus switching" (mauvais nom)) :
+Le premier bloc va avoir une variance=2*celle du suivant.
+Donc il doit être plus petit !
+Somme l_i=n
+(q/p_i)^l_i=cte =>q/p_i=K^(1/l_i) [K=complexité temps]
+Minimiser Somme (p_i/q)²l_i2^(a-i)
+= Somme l_iK^(-2/l_i)2^(-i)
+Au pif, tous les termes sont égaux et :
+log l_i-2(log K)/l_i-i=cte
+-2(log K)/l_i-i=cte (approx)
+Donc l_i~=2log K/(-cte-i)
+Somme l_i=[approximation par une intégrale] 2log K*ln[-cte/(-cte-a)]
+exp(n/2log K)=1+1/(-cte/a-1)
+-cte=a(1+1/(exp(n/2log K)-1))
+On a en gros log K=n/a*log p donc n/log K=a/log p=cte' [a et log p sont proportionnels à log n, a priori (param. Regev)] (!)
+-cte~=Ca [C>1]
+Donc l_i~=1/(Ca/2log K-i/2log K)
+Somme totale : l_iK^(i/log K-Ca/log K)*2^-i=l_i*2^(-Ca)
+Donc total=n/2^(-Ca) (surprise !)
+Soit variance totale 2^((1-C)a)q²n/12*variance du secret(Vs)
+On veut que ça soit ~=2^a*variance de l'erreur(Ve)
+De plus, 2^aVe/q²~=log K => a=log(q²/Ve*n)= (on suppose) alpha*log n ; alpha=2
+2^(Ca)=q²n/12*Vs/Ve
+C=1+log(n*Vs/log K/12)/a
+q=n² ; Vs=Ve=n³ -> C=2,5
+Vs=cte -> C=1
+Or C=1+1/(exp(n/2log K)-1)
+=> log K=n/(2ln 1+1/(C-1))=0,979n  (> à crible sur le réseau ?)
+Premier bloc non nul : K<q^(2log K/Ca) => log K<2log K/Ca*log q => 1<2/C*log q/log n/alpha => Calpha<2*log q/log n => nVs/Ve<n^(cte<=0)
+=> inutile (au premier ordre) dans le LWE classique
+BKW normal : q^(n/alpha/log(n)) -> n*log q/alpha/log n=n
+NB : Regev prend Ve=n³/log⁴ n donc pour n raisonnable, alpha est bien plus grand [pour n=256, log⁴ n=n^1.5]…
+Si C=1, on est sous-exponentiel (génial !!!!!!!!!!! ; mais on recalcule).
+On verra plus tard que log K=O(n/log log n) :
+2^aVe/q²~=log K => a=log(q²/Ve*log K)=log(n²log⁴ n/log log n)=2 log n+O(log log n)
+D'où -cte=(1+f)a avec f=o(1)
+f=log(n*Vs/log K/12)/a=(log log log n)/(2+o(1)log n)=log log log n/2log n
+Or f=exp(-n/2logK)
+log K=n/2/ln(1/f)=n/2ln log n
+Complexité : 2^(ln 2/2*n/log log n)
+Rmq : C=1 <=>
+2q+1+vs-ve=2q-ve+1 <=> vs=0
+Rmq : les longueurs vont de ~2log K/a~n/2log n/ln log n (>log K/log q : non vide) à 2 log K/af=n/ln log n/log log log n
+Soit un facteur de 1/f=2log n/log log log n : log l_i=cte commet une légère erreur
+log (2log K/(Ca-i))-2(log K)/l_i-i=cte
+-log (Ca-i)-2(log K)/l_i-i=cte
+l_i=2log K/(-i-log(Ca-i)-cte)=2log K(1/(-i-cte)+log(Ca-i)/(-i-cte)²)
+
+SVP : q^n=(q/sigma*cte)^m -> m~=2n
+Complexité : 0,754n
+Binaire : sigma^n*q^(m-n)=(m/2pie)^(-m/2)*(sqrt(m)*sigma)^m=(2piesigma²)^(m/2)
+n*log sigma+(m-n)log q=mlog sigma
+m=n log q/sigma/log q/sigma=n(1+o(1))
+q^(m-n)=(2pie)^(n/2) => m-n=log(2pie)/2*n/log q=K*n/log q
+q^(m-n)=(2pie)^(n/2)(2piesigma²)^(K/2*n/log q) => m-n=(log(2pie)/2+K/2)*n/log q [sigma=q^(1/2+o(1))]
+=> K=alpha+K/2 => K=2alpha=log(2pie)
+2^n=(q/sigma*cte)^m => m=cte*n/log(q/sigma)
+B=
+(qI_m A)
+(0    sigmaI_n)
+f(n)=|B(sqrt(n)) inter Z^n|=2^(alphan) cf. papier sur réseau/sac à dos
+
+
+Minimiser la norme L1 ("unnatural selection" (mauvais nom…)) : drôle d'idée !!!
+On veut minimiser la norme L2 de x-y pour de très nombreux x.
+Garder un certain nombre de y (les plus petits en L2) augmente le temps de calcul a priori (mais diminue la variance donc diminue la taille de la liste). Impact réel ?
+Regarder plutôt les voisins dans la table ?
+Pondérer la norme par rapport au bloc ? 2^-i au bloc i ? => au moment où on voit les vecteurs, les coords. vont être ajoutées le même nb de fois. Donc non. 
+N vecteurs, tirés selon un produit de gaussiennes d'écart-type 1
+E[Norme 2 minimale] ? On cherche R tel que proba {norme 2<=r}=1/N
+Intégrale_0^R nB_nr^(n-1)exp(-r²/2)dr=nB_n(R^(n-1)exp(-R²/2)-(n-1)Intégrale_0^R r^(n-2)exp(-r²/2)dr)=B_nexp(-R²/2)Somme_i=0^n-1 R^i(-1)^(n-1+i)n!/i!
+Espérance d'une coord : R/sqrt(n)
+Et pour des écart-types différents ? Beurk… -> expérience
+Algorithme :
+Générer(niveau)
+  pour chaque niveau précédent
+    tirer les coordonnées selon le niveau
+    choisir un bloc ; minimiser parmi le bloc
+Optimiser(tailles)
+  pour chaque niveau
+    pour chaque bloc
+      pour chaque élément du bloc
+         Ajouter Générer(niveau) au bloc
+  Réduire la taille du niveau qui contribue le plus ; augmenter celle du niveau qui contribue le moins
+  Optimiser(nouvTailles)
+a niveaux ; B blocs ; N élts/bloc ; n dimension
+Complexité par changement : a²/2BN²n/2
+a=10 N=100 n=100 -> B=1 -> pas d'indépendance (ok car N grand ???)
+NB : Important que si Ve>>Vs
+Et dernier bloc ?
+On veut N tel que P(|x|_2<q)~=1/K, x uniforme dans Fq^N
+Gauss ? (N/2pie)^(N/2)~=K => N=2log K/log log K=cte log n/log log n
+=> Équivalent à « decomposition approach » ?
+
+Même idée pour le LPN (juste avant Walsh uniquement):
+On a une liste de taille 2^m à réduire à 2^l.
+Solution : prendre les vecteurs de poids <=P sur les K premiers bits avec S(K,P)=2^(K+l-m).
+Si la plupart des vecteurs sont nuls là où secret=1 : ok
+=> (1-p)^P ~= 1 => P~=1/p
+p=cte : K^P=2^(K-m) => P log K=K-m => P log m~=K-m => K=m+P log m : on gagne (1/p+o(1))*log n bits donc 2^(1/p) en temps|mémoire :)
+proba=p/log n : K(1-H(log n/p/K))=m => K~=m/(1-H(log n/p/m))~=m(1+plog²n/n*log(n)) : on gagne  plog² n bits, donc proba succès*exp(p²log n)
+Et si P>>1/p ? (cf. décodage statistique) -> peu efficace a priori
+En pratique : pondérer dans le Walsh les requêtes (par la proba d'être correcte ?) ?
+Somme_i C(P,2i)p^(2i)(1-p)^(P-2i)
