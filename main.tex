@@ -4,16 +4,44 @@
 \usepackage[T1]{fontenc}	%Caracteres accentues
 \usepackage[utf8]{inputenc}  
 \usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
 
 \begin{document}
-\title{Processus aleatoires}
-\author{ENS}
+\title{}
+\author{}
 \date\today
 
 \maketitle
-\section{La méthode probabiliste}
-\subsection{Argument de comptage}
-\subsection{Méthode du premier moment}
-\subsection{Méthode du second moment}
-Phénomène de seuil. g fonction de seuil si
+\section{Introduction}
+\section{Sparse Walsh-Hadamard}
+\subsection{Description}
+
+
+\begin{algorithmic}
+%HW :: Set(Sample) -> List(secrets,scores)  
+\State p
+\Function{WH}{Samples,n}
+\If{$n=0$} \Return{$[(\epsilon,\Sum_{(s,v) \in \text{Samples}} 2v-1)]$}  \EndIf
+\State $L_0 \gets \{x | 0.x \in \text{Samples} \}$
+\State $L_1 \gets \{x | 1.x \in \text{Samples} \}$
+\State $s_0 \gets WH(L_0,n-1)$ 
+\State $s_1 \gets WH(L_1,n-1)$
+\State$ L \gets []$
+\ForAll{ $(s,score_0) \in s_0,(s,score_1) \in s_1 $ } 
+  \State $ L\gets L:(0.s, score_0 + score_1)    $
+  \If{$weight(1.s) \leq p $} $L\gets L: (1.s ,  score_0 - score_1)  $ \EndIf 
+\EndFor
+\Return{L}
+\EndFunction
+\end{algorithmic}
+
+\subsection{Complexity}
+\section{LPN sparse}
+\section{LPN}
+\section{Tables}
+\section{Experiments}
+\section{LWE LWE-bin}
+\section{Other ideas}
 \end{document}
