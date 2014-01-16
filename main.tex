@@ -21,9 +21,9 @@
 
 \begin{algorithmic}
 %HW :: Set(Sample) -> List(secrets,scores)  
-\State p
+\State p parameter of sparsity
 \Function{WH}{Samples,n}
-\If{$n=0$} \Return{$[(\epsilon,\Sum_{(s,v) \in \text{Samples}} 2v-1)]$}  \EndIf
+\If{$n=0$} \Return{$[(\epsilon,\sum\limits_{(s,v) \in \text{Samples}} 2v-1)]$}  \EndIf
 \State $L_0 \gets \{x | 0.x \in \text{Samples} \}$
 \State $L_1 \gets \{x | 1.x \in \text{Samples} \}$
 \State $s_0 \gets WH(L_0,n-1)$ 
