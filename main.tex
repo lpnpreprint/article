@@ -3,6 +3,7 @@
 \usepackage[francais]{babel}	%Doc fr
 \usepackage[T1]{fontenc}	%Caracteres accentues
 \usepackage[utf8]{inputenc}  
+\usepackage{framed}
 \usepackage{amsfonts}
 \usepackage{amsmath}
 \usepackage{algorithm}
@@ -16,9 +17,18 @@
 \maketitle
 \section{Introduction}
 \section{Sparse Walsh-Hadamard}
+Let $f:(\mathbb{Z}/2.\mathbb{Z})^n \rightarrow \mathbb{Z}/2.\mathbb{Z}$.
+
 \subsection{Description}
+We know since (TODO:ref) how to compute a fast Walsh-Hadamard transform.
+However, to solve the sparse-LPN, we don't need the all spectrum of f. 
+A natural question is to wonder if we can adapt the algorithm to compute only
+some coefficients of $\hat{f}$. 
 
 
+The next algorithm generates the list of $(s,score(s))$ for all $s$ potential secret of
+hamming weight less or equal to p.p is a parameter of the algorithm.
+\begin{framed}
 \begin{algorithmic}
 %HW :: Set(Sample) -> List(secrets,scores)  
 \State p parameter of sparsity
@@ -36,6 +46,7 @@
 \Return{L}
 \EndFunction
 \end{algorithmic}
+\end{framed}
 
 \subsection{Complexity}
 \section{LPN sparse}
