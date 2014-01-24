@@ -1,4 +1,4 @@
-\documentclass{article}		%Petite taille de doc
+\documentclass{llncs}		%Petite taille de doc
 
 \usepackage[francais]{babel}	%Doc fr
 \usepackage[T1]{fontenc}	%Caracteres accentues
@@ -10,12 +10,42 @@
 \usepackage[noend]{algpseudocode}
 
 \begin{document}
-\title{}
-\author{}
-\date\today
+\title{Variants of Algorithm to solve the Learning Parities with Noise Problem}
+\author{Thomas Bourgeat\inst{1} \and Pierre-Alain Fouque\inst{2} \and Paul Kirchner\inst{1}}
+\institute{\'Ecole normale sup\'erieure, 45 rue d'Ulm, 75005 Paris, France \\
+\texttt{\{Thomas.Bourgeat,Pierre-Alain.Fouque,Paul.Kirchner\}@ens.fr}
+\and 
+Universit\'e de Rennes and Institut Universitaire de France}
 
 \maketitle
+
+\begin{abstract}
+In this paper, we study some variants of the BKW (Blum-Kalai-Wasserman) algorithm to solve the Learning Parities with Noise (LPN) Problem. Here, we propose to analyse these variants and propose concrete parameters for cryptosystems based on this problem. 
+\end{abstract}
+
 \section{Introduction}
+The Learning Parities with Noise (LPN) problem is a well-known problem in learning and it is also used in various cryptosystems. Its connection with lattice problem and the average case to hard case reduction for some lattice has been the last years a very active research area and many cryptosystems have been proposed. 
+
+Parler de l'efficacite, LAPIN, ... 
+
+\section{Description of BKW algorithm}
+
+\subsection{BKW}
+
+\subsection{LF algorithm}
+
+decrire la FFT ici
+
+\subsection{Algo de Paul sur eprint}
+expliquer la reduction de la memoire
+
+\section{Description of the Algorithm}
+
+decrire le nouvel algo en indiquant les differentes phase grace a un dessin
+
+\subsection{Complexity}
+Complexity en fonction de la sparse WH
+
 \section{Sparse Walsh-Hadamard}
 Let $f:(\mathbb{Z}/2.\mathbb{Z})^n \rightarrow \mathbb{Z}/2.\mathbb{Z}$.
 
@@ -49,10 +79,24 @@ hamming weight less or equal to p.p is a parameter of the algorithm.
 \end{framed}
 
 \subsection{Complexity}
-\section{LPN sparse}
-\section{LPN}
+
 \section{Tables}
+
 \section{Experiments}
-\section{LWE LWE-bin}
-\section{Other ideas}
+
+\section{Conclusion}
+
+%% References
+\bibliographystyle{inc/splncs_srt.bst}
+%\bibliographystyle{alpha}
+%\bibliographystyle{apalike}
+\bibliography{bibliography}
+
+%% Appendix
+%\appendix
+%\input{appendix.tex}
+ 
+
+
+
 \end{document}
