@@ -1,0 +1,15 @@
+Pour chaque bloc
+  total+=l_bloc
+  mul=2^(-K/l_bloc)
+  pour chaque v dans liste
+    table[arrondi(mul*v) sur les indices [total-bloc;total[ ].ajoute(v)
+  liste=[]
+  pour chaque curListe dans table
+    pour chaque v_0 dans curListe
+      Trouver v_1 tel que norme_2(v_0+v_1) sur les indices <= total soit minimal avec v_1 dans curListe
+      liste=(v_0+v_1)::liste
+  Vider table
+
+Commencer avec une liste de taille 2^(K+N), N>=0.
+
+Ensuite, comme d'habitude : Walsh sur la fin, et on recommence sur un problème plus petit

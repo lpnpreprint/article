@@ -1,0 +1,46 @@
+Je note la concaténation *
+
+Itération(liste) :
+  Faire a fois
+    Ajouter dans la nouvelle liste la somme de toutes les paires d'éléments de la liste identiques sur le bloc courant de m bits
+    Liste=nouvelle liste
+  Jeter les éléments de la liste qui ont un poids > P_0 sur les L_0 bits suivants ; la nouvelle liste a 2^l éléments
+  Pour chaque secret_1 de poids <= P_1 sur les L_1 bits suivants
+    Calculer les scores pour chaque secret_2 de poids <= P_2 et de taille L_2 par Walsh sur la nouvelle liste
+    Conserver les M meilleurs (scores,secret_1*secret_2) *
+  renvoie Vérifier(1,liste,candidats)
+
+* : ajouter les M meilleurs courants à la liste, trouver le M-ième élément, jeter ce qui est supérieur (linéaire)
+
+On pose l_0=L_0
+
+Vérifie(niveau,liste,candidats)
+  si candidats=[]
+   renvoie rien
+  si niveau>maxNiveau
+    si (score,secret) est de score maximal, score>score_min
+      renvoie secret
+    Itération(liste) [avec d'autres paramètres dans la fusion]
+  Jeter les éléments de la liste qui ont un poids > p_niveau sur les l_niveau bits (après ceux fusionnés)
+  pour chaque (score_1,secret_1) de candidats
+     Calculer score_0 pour chaque secret_0 de poids <= p'_niveau et de taille l_(niveau-1)-l_niveau par Walsh sur la nouvelle liste
+     Conserver les M_niveau meilleurs (score_0+score_1,secret_0*secret_1)
+  Vérifie(niveau+1,liste,candidats)
+
+Nb : normalement, maxNiveau est très petit, M_niveau décroît très vite (par exemple, exponentiellement) et l_maxNiveau=p_maxNiveau=0
+Nb2 : on peut supprimer les bits à la fin de liste ; on peut fusionner les doublons
+
+TrouveBloc(liste)
+  Tant que proba d'avoir déjà terminé<1-epsilon
+     si r=Itération(Transformer(liste)) != rien
+	renvoie r
+  renvoie rien
+
+Nb : Transformer transforme des erreurs en secret et prendre en compte curSecret et peut prendre en compte le résultat d'un appel précédent
+
+Résous(liste,curSecret)
+  si curSecret est complet
+    renvoie curSecret
+  si r=TrouveBloc(liste) = rien
+     renvoie Résous(liste,curSecret privé du dernier bloc)
+  renvoie Résous(liste,curSecret*r)
