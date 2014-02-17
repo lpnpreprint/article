@@ -9,6 +9,9 @@
 \usepackage{algorithm}
 \usepackage[noend]{algpseudocode}
 
+\newcommand{\argmin}{\arg\!\min}
+\newcommand{\argmax}{\arg\!\max}
+
 \begin{document}
 \title{Variants of Algorithm to solve the Learning Parities with Noise Problem}
 \author{Thomas Bourgeat\inst{1} \and Pierre-Alain Fouque\inst{2} \and Paul Kirchner\inst{1}}
@@ -24,37 +27,82 @@ In this paper, we study some variants of the BKW (Blum-Kalai-Wasserman) algorith
 \end{abstract}
 
 \section{Introduction}
-The Learning Parities with Noise (LPN) problem is a well-known problem in learning and it is also used in various cryptosystems. Its connection with lattice problem and the average case to hard case reduction for some lattice has been the last years a very active research area and many cryptosystems have been proposed. 
+The Learning Parities with Noise (LPN) problem is 
+a well-known problem in learning and it is also used 
+in various cryptosystems. 
+Its connection with lattice problem and the average case to hard
+ case reduction for some lattice has been the last years
+ a very active research area and many cryptosystems have been proposed. 
 
+%TODO
 Parler de l'efficacite, LAPIN, ... 
 
+In all the paper we use the next notations :
+\begin{itemize}
+\item $A.s+\nu = b$ is an instance of the LPN problem.
+\item $A\in \mathcal{M}_{m\times n}(GF(2)), \nu\in \mathcal{M}_{m\times
+1}(GF(2))$
+\end{itemize}
+
 \section{Description of BKW algorithm}
+The main issue with the LPN is to reduce the dimension of the problem without
+increase the noise too much. \cite{BKW} proposed the first sub-exponential
+algorithm with a clever adaptation of gaussian pivot. Let us remind the first
+step of the algorithm in a general case. Next, we are going to analyze precisely
+the complexity.
 
 \subsection{BKW}
+The BKW algorithm begin with the reduction of the dimension of the problem.
+
+\begin{framed}
+\begin{algorithmic}
+%BKWReduction :: Set(Sample) -> Set(Sample)  
+\Function{BKWReduction}{A,b}
+\Return{L}
+\EndFunction
+\end{algorithmic}
+\end{framed}
+
+
+
+
 
 \subsection{LF algorithm}
+The main idea of the article \cite{LF} was to use a Fourier transform to recover
+the secret in the last phasis of the BKW algorithm.
 
-decrire la FFT ici
+Indeed, you can remark that the Fourier coefficient
+$$\hat{f}(x)= \sum \limits_{\forall i \in E} f(i).(-1)^{i.x}$$
+is highly correlated to the score: $$score(x)=\sum\limits_{\forall r_i\in
+Row(A)}r_i.x+b(i)$$ The first time, we are in $({-1,1},*)$, the second time we
+are in $(\mathbb{Z}/2\mathbb{Z},\oplus)$.Moreover, in our context of LPN we have
+$s=\argmin\limits_{x \in E} score(x)$. In other words, we want to say $s = \argmax\limits_{x\in
+E} \hat{f}(x)$.
+
+So, if we know the greater coefficient of the Fourier tranforms of f, we solve
+the LPN. Actually, there is a deeper reason for this correlation that you can find in any
+lesson on the representation of finite abelian groups. 
 
 \subsection{Algo de Paul sur eprint}
-expliquer la reduction de la memoire
+
+
 
 \section{Description of the Algorithm}
 
 decrire le nouvel algo en indiquant les differentes phase grace a un dessin
 
 \subsection{Complexity}
+
 Complexity en fonction de la sparse WH
 
 \section{Sparse Walsh-Hadamard}
 Let $f:(\mathbb{Z}/2.\mathbb{Z})^n \rightarrow \mathbb{Z}/2.\mathbb{Z}$.
 
 \subsection{Description}
-We know since (TODO:ref) how to compute a fast Walsh-Hadamard transform.
+We know how to compute a fast Walsh-Hadamard transform.
 However, to solve the sparse-LPN, we don't need the all spectrum of f. 
 A natural question is to wonder if we can adapt the algorithm to compute only
 some coefficients of $\hat{f}$. 
-
 
 The next algorithm generates the list of $(s,score(s))$ for all $s$ potential secret of
 hamming weight less or equal to p.p is a parameter of the algorithm.
